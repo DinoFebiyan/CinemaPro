@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "4775709450",
+    "project_id": "cinemapro-37004",
+    "storage_bucket": "cinemapro-37004.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:4775709450:android:8146abcab77960221a88f3",
+        "android_client_info": {
+          "package_name": "com.example.cinemapro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnUKO8j6RX-6L41D5ee_qu8VItwRFNR-k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
