@@ -83,4 +83,5 @@ class DefaultFirebaseOptions {
     authDomain: 'cinemapro-37004.firebaseapp.com',
     storageBucket: 'cinemapro-37004.firebasestorage.app',
   );
+
 }

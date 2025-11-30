@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import '../utility/email_validator.dart'; // Import the email validator from utility folder
 
 class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
+  
   @override
   _RegisterScreenState createState() => _RegisterScreenState();
 }
