@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/movie_model_cheryl.dart';
 import 'detail-dino.dart';
+import 'profile_cheryl.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -13,6 +14,18 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('CinemaPro'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.history),
+            onPressed: () {
+              Navigator.push(
+                context, 
+                MaterialPageRoute(
+                  builder: (context) => const ProfileCheryl()
+                  ),
+                );
+            },
+            ),
+          
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
