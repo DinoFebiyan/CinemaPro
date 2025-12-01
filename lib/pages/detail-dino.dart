@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/movie_model_cheryl.dart';
 
 class DetailPage extends StatelessWidget {
@@ -186,13 +188,53 @@ class DetailPage extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
+        onPressed: () async {
+          final user = FirebaseAuth.instance.currentUser;
+          if (user == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Harap Login Terlebih Dahulu!')),
+            );
+            return;
+          }
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Book Ticket untuk: ${movie.title}'),
-              backgroundColor: Colors.blue,
-            ),
+            const SnackBar(content: Text('Sedang memproses pemesanan')),
           );
+
+          try {
+            final String bookingId = "BK-${DateTime.now().millisecondsSinceEpoch}";
+            final List<String> selectedSeats = ["A1"];
+            final int total_price = movie.basePrice;
+
+            await FirebaseFirestore.instance.collection('bookings').add({
+              'booking_id': bookingId,
+              'user_id': user.uid,
+              'movie_title': movie.title,
+              'seats': selectedSeats,
+              'total_price': total_price,
+              'booking_date': FieldValue.serverTimestamp(),
+            });
+
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Berhasil booking ${movie.title}!'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+              Navigator.pop(context);
+            }
+          } catch (e) {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Gagal: $e'),
+                  backgroundColor: Colors.red,
+                )
+              );
+            }
+          }
         },
         icon: const Icon(Icons.confirmation_number),
         label: const Text('Book Ticket'),
