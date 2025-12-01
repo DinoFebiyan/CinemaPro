@@ -121,21 +121,22 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Future<void> _login() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
+Future<void> _login() async {
+  if (!_formKey.currentState!.validate()) {
+    return;
+  }
 
-    setState(() {
-      _isLoading = true;
-    });
+  setState(() {
+    _isLoading = true;
+  });
 
-    try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text,
-      );
+  try {
+    await FirebaseAuth.instance.signInWithEmailAndPassword(
+      email: emailController.text.trim(),
+      password: passwordController.text,
+    );
 
+    if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Login berhasil'),
@@ -147,20 +148,26 @@ class _LoginPageState extends State<LoginPage> {
         context,
         MaterialPageRoute(builder: (context) => HomePage()),
       );
+    }
 
-    } on FirebaseAuthException catch (e) {
+  } on FirebaseAuthException catch (e) {
+    if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Login gagal: ${e.message}'),
           backgroundColor: Colors.red,
         ),
       );
-    } finally {
+    }
+  } finally {
+    if (mounted) {
       setState(() {
         _isLoading = false;
       });
     }
   }
+}
+
 
   @override
   void dispose() {
