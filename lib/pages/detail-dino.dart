@@ -1,3 +1,5 @@
+import 'package:cinemapro/pages/seat_matrix_jabir.dart';
+import 'package:cinemapro/service/booking_service_isal.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -196,29 +198,12 @@ class DetailPage extends StatelessWidget {
           );
 
           try {
-            final String bookingId = "BK-${DateTime.now().millisecondsSinceEpoch}";
-            final List<String> selectedSeats = ["A1"];
-            final int total_price = movie.basePrice;
-
-            await FirebaseFirestore.instance.collection('bookings').add({
-              'booking_id': bookingId,
-              'user_id': user.uid,
-              'movie_title': movie.title,
-              'seats': selectedSeats,
-              'total_price': total_price,
-              'booking_date': FieldValue.serverTimestamp(),
-            });
-
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Berhasil booking ${movie.title}!'),
-                  backgroundColor: Colors.green,
-                ),
-              );
-              Navigator.pop(context);
-            }
+            Navigator.push(
+              context, 
+              MaterialPageRoute(
+                builder: (context) => SeatMatrixJabir(movieTitle: movie.title, userId: user.uid, totalPrice: movie.basePrice),
+              )
+            );
           } catch (e) {
             if (context.mounted) {
               ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -231,8 +216,8 @@ class DetailPage extends StatelessWidget {
             }
           }
         },
-        icon: const Icon(Icons.confirmation_number),
-        label: const Text('Book Ticket'),
+        icon: const Icon(Icons.chair),
+        label: const Text('Pilih Kursi'),
         backgroundColor: Colors.blue,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
