@@ -2,13 +2,59 @@ import 'package:cinemapro/pages/seat_matrix_jabir.dart';
 import 'package:cinemapro/service/booking_service_isal.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../models/movie_model_cheryl.dart';
+import '../ticket_counter_jabir.dart';
+import '../seat_matrix_embedded_jabir.dart';
+import '../services/booking_service_jabir.dart';
 
-class DetailPage extends StatelessWidget {
+class DetailPage extends StatefulWidget {
   final MovieModelCheryl movie;
 
   const DetailPage({super.key, required this.movie});
+
+  @override
+  _DetailPageState createState() => _DetailPageState();
+}
+
+class _DetailPageState extends State<DetailPage> {
+  int ticketCount = 1;
+  List<String> selectedSeats = [];
+  List<String> bookedSeats = [];
+  bool _isLoading = true;
+  final BookingServiceJabir _bookingService = BookingServiceJabir();
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchBookedSeats();
+  }
+
+  Future<void> _fetchBookedSeats() async {
+    try {
+      List<String> seats = await _bookingService.getBookedSeatsForMovie(widget.movie.title);
+      setState(() {
+        bookedSeats = seats;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      print('Error fetching booked seats: $e');
+    }
+  }
+
+  void _onTicketCountChanged(int count) {
+    setState(() {
+      ticketCount = count;
+    });
+  }
+
+  void _onSeatsSelected(List<String> seats) {
+    setState(() {
+      selectedSeats = seats;
+    });
+  }
 
   String _formatPrice(int price) {
     final priceStr = price.toString();
@@ -27,8 +73,8 @@ class DetailPage extends StatelessWidget {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
 
-    final durationHours = movie.duration ~/ 60;
-    final durationMinutes = movie.duration % 60;
+    final durationHours = widget.movie.duration ~/ 60;
+    final durationMinutes = widget.movie.duration % 60;
     final durationText = durationHours > 0
         ? '${durationHours}j ${durationMinutes}m'
         : '${durationMinutes}m';
@@ -41,9 +87,9 @@ class DetailPage extends StatelessWidget {
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
               background: Hero(
-                tag: movie.movieID,
+                tag: widget.movie.movieID,
                 child: Image.network(
-                  movie.posterUrl,
+                  widget.movie.posterUrl,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
@@ -84,7 +130,7 @@ class DetailPage extends StatelessWidget {
                 children: [
 
                   Text(
-                    movie.title,
+                    widget.movie.title,
                     style: TextStyle(
                       fontSize: screenWidth > 600 ? 32 : 24,
                       fontWeight: FontWeight.bold,
@@ -113,7 +159,7 @@ class DetailPage extends StatelessWidget {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              movie.rating.toStringAsFixed(1),
+                              widget.movie.rating.toStringAsFixed(1),
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
@@ -172,7 +218,7 @@ class DetailPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          _formatPrice(movie.basePrice),
+                          _formatPrice(widget.movie.basePrice),
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -182,7 +228,54 @@ class DetailPage extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 20),
+
+                  // Ticket Count Selection and Seat Matrix Section
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Pilih Jumlah Tiket & Kursi',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 10),
+
+                        // Ticket Counter Widget
+                        TicketCounterJabir(
+                          basePrice: widget.movie.basePrice,
+                          onTicketCountChanged: _onTicketCountChanged,
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        // Loading indicator while fetching booked seats
+                        if (_isLoading)
+                          const Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          )
+                        else
+                          // Seat Matrix Widget
+                          SeatMatrixWidgetJabir(
+                            movieTitle: widget.movie.title,
+                            userId: 'user001', // This would be dynamic in real implementation
+                            totalPrice: widget.movie.basePrice * ticketCount,
+                            bookedSeats: bookedSeats, // Booked seats from database
+                            maxSeats: ticketCount, // Limit seats based on ticket count
+                            onSeatsSelected: _onSeatsSelected,
+                          ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -190,39 +283,25 @@ class DetailPage extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          final user = FirebaseAuth.instance.currentUser;
-          if (user == null) {
+        onPressed: () {
+          if (selectedSeats.length > 0) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Harap Login Terlebih Dahulu!')),
+              SnackBar(
+                content: Text('Booking untuk: ${widget.movie.title}\nKursi: ${selectedSeats.join(", ")}'),
+                backgroundColor: Colors.blue,
+              ),
             );
-            return;
-          }
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Sedang memproses pemesanan')),
-          );
-
-          try {
-            Navigator.push(
-              context, 
-              MaterialPageRoute(
-                builder: (context) => SeatMatrixJabir(movieTitle: movie.title, userId: user.uid, totalPrice: movie.basePrice),
-              )
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Silakan pilih kursi terlebih dahulu'),
+                backgroundColor: Colors.orange,
+              ),
             );
-          } catch (e) {
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Gagal: $e'),
-                  backgroundColor: Colors.red,
-                )
-              );
-            }
           }
         },
-        icon: const Icon(Icons.chair),
-        label: const Text('Pilih Kursi'),
+        icon: const Icon(Icons.confirmation_number),
+        label: const Text('Pesan Sekarang'),
         backgroundColor: Colors.blue,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
