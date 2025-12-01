@@ -135,6 +135,13 @@ class _SeatMatrixJabirState extends State<SeatMatrixJabir> {
     });
   }
 
+  // CATATAN: Fungsi ini seharusnya mencakup logika perhitungan harga setelah pemilihan kursi
+  // Perhitungan harga harus mempertimbangkan:
+  // - Harga dasar per kursi
+  // - Biaya tambahan (misalnya, biaya 3D, kursi premium)
+  // - Diskon (misalnya, diskon pelajar, diskon pembelian banyak)
+  // - Pajak dan biaya layanan
+  // Harga total yang dihitung kemudian harus memperbarui widget.totalPrice
   void _confirmBooking() {
     final booking = BookingServiceIsal();
     booking.bookingMovie_Isal(
