@@ -1,3 +1,4 @@
+import 'package:cinemapro/service/booking_service_isal.dart';
 import 'package:flutter/material.dart';
 
 // SeatItem widget representing a single seat
@@ -124,29 +125,22 @@ class _SeatMatrixJabirState extends State<SeatMatrixJabir> {
   }
 
   void _confirmBooking() {
-    // This function will handle the confirmation logic
-    // For now, just print the selected seats
-    print('Selected seats: $selectedSeats');
-    print('Movie title: ${widget.movieTitle}');
-    print('User ID: ${widget.userId}');
-    print('Total price: ${widget.totalPrice}');
-    
-    // In the future, this will save to Firebase
-    // Collection: bookings
-    // Field: booking id (Auto Generate)
-    // Field: user id
-    // Field: movie title
-    // Field: seats (Array of selected seats)
-    // Field: total price
-    // Field: booking date (Timestamp)
-    
-    // For now, just showing a snackbar
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Booking confirmed for seats: ${selectedSeats.join(", ")}'),
-        backgroundColor: Colors.green,
-      ),
+    final booking = BookingServiceIsal();
+    booking.bookingMovie_Isal(
+      movieTitle: widget.movieTitle,
+      basePrice: widget.totalPrice,
+      selectedSeats: selectedSeats,
     );
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Berhasil booking ${widget.movieTitle}!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      Navigator.pop(context);
+    }
   }
 
   void _cancelBooking() {
@@ -159,7 +153,7 @@ class _SeatMatrixJabirState extends State<SeatMatrixJabir> {
       }
       selectedSeats.clear();
     });
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Selection cleared'),
@@ -198,21 +192,20 @@ class _SeatMatrixJabirState extends State<SeatMatrixJabir> {
               ),
             ),
             SizedBox(height: 20),
-            
+
             // Seat grid with scroll
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    for (int row = 0; row < 10; row++)
-                      _buildSeatRow(row),
+                    for (int row = 0; row < 10; row++) _buildSeatRow(row),
                   ],
                 ),
               ),
             ),
-            
+
             SizedBox(height: 20),
-            
+
             // Legend
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -222,9 +215,9 @@ class _SeatMatrixJabirState extends State<SeatMatrixJabir> {
                 _buildLegendItem(Colors.red, 'Booked'),
               ],
             ),
-            
+
             SizedBox(height: 20),
-            
+
             // Selected seats info
             Container(
               padding: EdgeInsets.all(10),
@@ -237,9 +230,9 @@ class _SeatMatrixJabirState extends State<SeatMatrixJabir> {
                 style: TextStyle(fontSize: 16),
               ),
             ),
-            
+
             SizedBox(height: 20),
-            
+
             // Action buttons
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
