@@ -38,6 +38,7 @@ class initialScreen_dino extends StatelessWidget {
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
+        
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
@@ -50,7 +51,9 @@ class initialScreen_dino extends StatelessWidget {
                 .collection('users')
                 .doc(snapshot.data!.uid)
                 .get(),
+            
             builder: (context, userSnapshot) {
+              
               if (userSnapshot.connectionState == ConnectionState.waiting) {
                 return const Scaffold(
                   body: Center(child: CircularProgressIndicator()),

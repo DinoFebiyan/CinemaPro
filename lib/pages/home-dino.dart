@@ -1,3 +1,4 @@
+import 'package:cinemapro/main.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -30,6 +31,9 @@ class HomePage extends StatelessWidget {
             icon: const Icon(Icons.logout),
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
+              if (context.mounted) {
+                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=> const initialScreen_dino()), (route) => false);
+              }
             },
           ),
         ],
