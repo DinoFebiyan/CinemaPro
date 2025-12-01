@@ -60,12 +60,7 @@ class DetailPage extends StatelessWidget {
                     return Container(
                       color: Colors.grey[300],
                       child: Center(
-                        child: CircularProgressIndicator(
-                          value: loadingProgress.expectedTotalBytes != null
-                              ? loadingProgress.cumulativeBytesLoaded /
-                                    loadingProgress.expectedTotalBytes!
-                              : null,
-                        ),
+                        child: CircularProgressIndicator(),
                       ),
                     );
                   },
