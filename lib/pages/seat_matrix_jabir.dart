@@ -87,7 +87,7 @@ class SeatMatrixJabir extends StatefulWidget {
 
 class _SeatMatrixJabirState extends State<SeatMatrixJabir> {
   Map<String, SeatStatus> seatStatuses = {};
-  List<String> selectedSeats = [];
+  String? selectedSeat; // Changed to single seat selection
 
   @override
   void initState() {
@@ -108,18 +108,29 @@ class _SeatMatrixJabirState extends State<SeatMatrixJabir> {
     }
   }
 
-  void _toggleSeat(String seatNumber) {
+  void _selectSeat(String seatNumber) {
     if (seatStatuses[seatNumber] == SeatStatus.booked) {
       return; // Can't select booked seats
     }
 
     setState(() {
-      if (seatStatuses[seatNumber] == SeatStatus.selected) {
+      // Reset previously selected seat if exists
+      if (selectedSeat != null && selectedSeat != seatNumber) {
+        seatStatuses[selectedSeat!] = SeatStatus.available;
+      }
+
+      // Toggle the current seat
+      if (selectedSeat == seatNumber) {
+        // Deselect the seat
         seatStatuses[seatNumber] = SeatStatus.available;
-        selectedSeats.remove(seatNumber);
+        selectedSeat = null;
       } else {
+        // Select the new seat
+        if (selectedSeat != null) {
+          seatStatuses[selectedSeat!] = SeatStatus.available;
+        }
         seatStatuses[seatNumber] = SeatStatus.selected;
-        selectedSeats.add(seatNumber);
+        selectedSeat = seatNumber;
       }
     });
   }
@@ -144,14 +155,12 @@ class _SeatMatrixJabirState extends State<SeatMatrixJabir> {
   }
 
   void _cancelBooking() {
-    // Reset all selected seats
+    // Reset the selected seat
     setState(() {
-      for (String seat in selectedSeats) {
-        if (seatStatuses[seat] == SeatStatus.selected) {
-          seatStatuses[seat] = SeatStatus.available;
-        }
+      if (selectedSeat != null) {
+        seatStatuses[selectedSeat!] = SeatStatus.available;
+        selectedSeat = null;
       }
-      selectedSeats.clear();
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -226,7 +235,7 @@ class _SeatMatrixJabirState extends State<SeatMatrixJabir> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                'Selected Seats: ${selectedSeats.isNotEmpty ? selectedSeats.join(', ') : 'None'}',
+                'Selected Seat: ${selectedSeat != null ? selectedSeat : 'None'}',
                 style: TextStyle(fontSize: 16),
               ),
             ),
@@ -247,13 +256,13 @@ class _SeatMatrixJabirState extends State<SeatMatrixJabir> {
                   child: Text('Cancel'),
                 ),
                 ElevatedButton(
-                  onPressed: selectedSeats.isEmpty ? null : _confirmBooking,
+                  onPressed: selectedSeat == null ? null : _confirmBooking,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     foregroundColor: Colors.white,
                     padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                   ),
-                  child: Text('Confirm (${selectedSeats.length} seats)'),
+                  child: Text('Confirm'),
                 ),
               ],
             ),
@@ -269,14 +278,14 @@ class _SeatMatrixJabirState extends State<SeatMatrixJabir> {
 
     for (int col = 1; col <= 5; col++) {
       String seatNumber = '${rowLabel}${col}';
-      bool isSelected = selectedSeats.contains(seatNumber);
+      bool isSelected = selectedSeat == seatNumber;
 
       seats.add(
         SeatItemJabir(
           seatNumber: seatNumber,
           status: seatStatuses[seatNumber]!,
           isSelected: isSelected,
-          onTap: () => _toggleSeat(seatNumber),
+          onTap: () => _selectSeat(seatNumber),
         ),
       );
     }
