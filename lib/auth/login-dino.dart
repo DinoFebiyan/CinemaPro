@@ -148,7 +148,7 @@ Future<void> _login() async {
       password: passwordController.text,
     );
 
-    if (context.mounted) {
+    if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Login berhasil'),
@@ -163,7 +163,7 @@ Future<void> _login() async {
     }
 
   } on FirebaseAuthException catch (e) {
-    if (context.mounted) {
+    if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Login gagal: ${e.message}'),
