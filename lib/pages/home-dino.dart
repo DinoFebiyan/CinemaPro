@@ -16,7 +16,7 @@ class HomePage extends StatelessWidget {
         title: const Text('CinemaPro'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.history),
+            icon: const Icon(Icons.person_2_rounded),
             onPressed: () {
               Navigator.push(
                 context, 
@@ -28,7 +28,7 @@ class HomePage extends StatelessWidget {
             ),
           
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout_outlined),
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
               if (context.mounted) {
@@ -53,15 +53,17 @@ class HomePage extends StatelessWidget {
             return const Center(child: Text('Tidak ada film tersedia'));
           }
 
-          final screenWidth = MediaQuery.of(context).size.width;
-          final crossAxisCount = screenWidth > 600
-              ? 4
-              : (screenWidth > 400 ? 3 : 2);
+          // final screenWidth = MediaQuery.of(context).size.width;
+          // final crossAxisCount = screenWidth > 600
+          //     ? 4
+          //     : (screenWidth > 400 ? 3 : 2);
 
           return GridView.builder(
             padding: const EdgeInsets.all(16.0),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: crossAxisCount,
+            // gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            //   crossAxisCount: crossAxisCount,
+            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 200,
               crossAxisSpacing: 16.0,
               mainAxisSpacing: 16.0,
               childAspectRatio: 0.65,
