@@ -1,7 +1,9 @@
 import 'package:cinemapro/pages/seat_matrix_jabir.dart';
 import 'package:cinemapro/service/booking_service_isal.dart';
+import 'package:cinemapro/services/booking_service_jabir.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/movie_model_cheryl.dart';
 import '../ticket_counter_jabir.dart';
 import '../seat_matrix_embedded_jabir.dart';
@@ -21,7 +23,8 @@ class _DetailPageState extends State<DetailPage> {
   List<String> selectedSeats = [];
   List<String> bookedSeats = [];
   bool _isLoading = true;
-  final BookingServiceJabir _bookingService = BookingServiceJabir();
+  final BookingServiceJabir _oldBookingService = BookingServiceJabir(); // Used for fetching booked seats
+  final BookingServiceJabir _newBookingService = BookingServiceJabir(); // Used for creating bookings
 
   @override
   void initState() {
@@ -31,7 +34,7 @@ class _DetailPageState extends State<DetailPage> {
 
   Future<void> _fetchBookedSeats() async {
     try {
-      List<String> seats = await _bookingService.getBookedSeatsForMovie(widget.movie.title);
+      List<String> seats = await _oldBookingService.getBookedSeatsForMovie(widget.movie.title);
       setState(() {
         bookedSeats = seats;
         _isLoading = false;
@@ -54,6 +57,123 @@ class _DetailPageState extends State<DetailPage> {
     setState(() {
       selectedSeats = seats;
     });
+  }
+
+  // Calculate final price with additional fees and discounts
+  int _calculateFinalPrice() {
+    int totalBase = widget.movie.basePrice * selectedSeats.length;
+    int tax = 0;
+    double discount = 0;
+
+    // Long title tax: if movie title length > 10 characters, add Rp 2,500 per seat
+    if (widget.movie.title.length > 10) {
+      tax = selectedSeats.length * 2500;
+    }
+
+    // Discount for even-numbered seats: 10% discount per even-numbered seat
+    for (var seat in selectedSeats) {
+      String numberString = seat.substring(1); // "A2" -> "2"
+      int seatNumber = int.tryParse(numberString) ?? 1;
+      if (seatNumber % 2 == 0) {
+        discount += widget.movie.basePrice * 0.1;
+      }
+    }
+
+    int finalPrice = (totalBase + tax - discount).round();
+    return finalPrice;
+  }
+
+  // Handle booking confirmation
+  Future<void> _handleBooking() async {
+    if (selectedSeats.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Silakan pilih kursi terlebih dahulu'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    try {
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Row(
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 20),
+                Text("Memproses booking..."),
+              ],
+            ),
+          );
+        },
+      );
+
+      // Calculate the final price with any additional fees/discounts
+      int finalPrice = _calculateFinalPrice();
+
+      // Create the booking in Firestore
+      String bookingId = await _newBookingService.createBooking(
+        movieTitle: widget.movie.title,
+        seats: selectedSeats,
+        totalPrice: finalPrice,
+      );
+
+      // Close the loading dialog
+      Navigator.of(context).pop();
+
+      // Show success message
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Booking Berhasil!"),
+            content: Text(
+              "Booking ID: $bookingId\n"
+              "Film: ${widget.movie.title}\n"
+              "Kursi: ${selectedSeats.join(", ")}\n"
+              "Total Pembayaran: Rp ${finalPrice.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{3})$|^(\d{3})(?=\d)', multiLine: true), (Match m) => '${m[0]},-')}",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  // Navigate back to home or clear the selection
+                  setState(() {
+                    selectedSeats = [];
+                  });
+                },
+                child: Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
+    } catch (e) {
+      // Close the loading dialog if it's still open
+      Navigator.of(context).pop();
+
+      // Show error message
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Booking Gagal"),
+            content: Text("Terjadi kesalahan saat memproses booking: $e"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   String _formatPrice(int price) {
@@ -267,8 +387,8 @@ class _DetailPageState extends State<DetailPage> {
                           // Seat Matrix Widget
                           SeatMatrixWidgetJabir(
                             movieTitle: widget.movie.title,
-                            userId: 'user001', // This would be dynamic in real implementation
-                            totalPrice: widget.movie.basePrice * ticketCount,
+                            userId: FirebaseAuth.instance.currentUser?.uid ?? 'user001', // Get the current user ID
+                            basePrice: widget.movie.basePrice,
                             bookedSeats: bookedSeats, // Booked seats from database
                             maxSeats: ticketCount, // Limit seats based on ticket count
                             onSeatsSelected: _onSeatsSelected,
@@ -283,23 +403,7 @@ class _DetailPageState extends State<DetailPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          if (selectedSeats.length > 0) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Booking untuk: ${widget.movie.title}\nKursi: ${selectedSeats.join(", ")}'),
-                backgroundColor: Colors.blue,
-              ),
-            );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Silakan pilih kursi terlebih dahulu'),
-                backgroundColor: Colors.orange,
-              ),
-            );
-          }
-        },
+        onPressed: _handleBooking,
         icon: const Icon(Icons.confirmation_number),
         label: const Text('Pesan Sekarang'),
         backgroundColor: Colors.blue,

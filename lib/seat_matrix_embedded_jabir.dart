@@ -70,7 +70,7 @@ enum SeatStatus { available, selected, booked }
 class SeatMatrixWidgetJabir extends StatefulWidget {
   final String movieTitle;
   final String userId;
-  final int totalPrice;
+  final int basePrice;
   final List<String> bookedSeats;
   final int maxSeats; // Added to limit seat selection based on ticket count
   final ValueChanged<List<String>>? onSeatsSelected; // Callback when seats change
@@ -79,7 +79,7 @@ class SeatMatrixWidgetJabir extends StatefulWidget {
     Key? key,
     required this.movieTitle,
     required this.userId,
-    required this.totalPrice,
+    required this.basePrice,
     this.bookedSeats = const [],
     this.maxSeats = 10, // Default to allow up to 10 seats
     this.onSeatsSelected,

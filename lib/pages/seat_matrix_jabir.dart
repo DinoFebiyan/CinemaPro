@@ -1,5 +1,6 @@
-import 'package:cinemapro/service/booking_service_isal.dart';
+import 'package:cinemapro/services/booking_service_jabir.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 // SeatItem widget representing a single seat
 class SeatItemJabir extends StatelessWidget {
@@ -70,14 +71,14 @@ enum SeatStatus { available, selected, booked }
 class SeatMatrixJabir extends StatefulWidget {
   final String movieTitle;
   final String userId;
-  final int totalPrice;
+  final int basePrice;
   final List<String> bookedSeats;
 
   const SeatMatrixJabir({
     Key? key,
     required this.movieTitle,
     required this.userId,
-    required this.totalPrice,
+    required this.basePrice,
     this.bookedSeats = const [],
   }) : super(key: key);
 
@@ -87,7 +88,7 @@ class SeatMatrixJabir extends StatefulWidget {
 
 class _SeatMatrixJabirState extends State<SeatMatrixJabir> {
   Map<String, SeatStatus> seatStatuses = {};
-  List<String> selectedSeats = []; // Changed back to multiple seat selection
+  List<String> selectedSeats = [];
 
   @override
   void initState() {
@@ -124,29 +125,76 @@ class _SeatMatrixJabirState extends State<SeatMatrixJabir> {
     });
   }
 
-  // CATATAN: Fungsi ini seharusnya mencakup logika perhitungan harga setelah pemilihan kursi
-  // Perhitungan harga harus mempertimbangkan:
-  // - Harga dasar per kursi
-  // - Biaya tambahan (misalnya, biaya 3D, kursi premium)
-  // - Diskon (misalnya, diskon pelajar, diskon pembelian banyak)
-  // - Pajak dan biaya layanan
-  // Harga total yang dihitung kemudian harus memperbarui widget.totalPrice
-  void _confirmBooking() {
-    final booking = BookingServiceIsal();
-    booking.bookingMovie_Isal(
-      movieTitle: widget.movieTitle,
-      basePrice: widget.totalPrice,
-      selectedSeats: selectedSeats,
-    );
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Berhasil booking ${widget.movieTitle}!'),
-          backgroundColor: Colors.green,
-        ),
+  // Calculate final price with additional fees and discounts
+  int _calculateFinalPrice() {
+    int totalBase = widget.basePrice * selectedSeats.length;
+    int tax = 0;
+    double discount = 0;
+
+    // Long title tax: if movie title length > 10 characters, add Rp 2,500 per seat
+    if (widget.movieTitle.length > 10) {
+      tax = selectedSeats.length * 2500;
+    }
+
+    // Discount for even-numbered seats: 10% discount per even-numbered seat
+    for (var seat in selectedSeats) {
+      String numberString = seat.substring(1); // "A2" -> "2"
+      int seatNumber = int.tryParse(numberString) ?? 1;
+      if (seatNumber % 2 == 0) {
+        discount += widget.basePrice * 0.1;
+      }
+    }
+
+    int finalPrice = (totalBase + tax - discount).round();
+    return finalPrice;
+  }
+
+  // Confirm booking and send data to Firebase
+  void _confirmBooking() async {
+    if (selectedSeats.isEmpty) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Silakan pilih kursi terlebih dahulu'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+      return;
+    }
+
+    try {
+      // Calculate the final price
+      int finalPrice = _calculateFinalPrice();
+
+      // Create booking using the new service
+      final bookingService = BookingServiceJabir();
+      String bookingId = await bookingService.createBooking(
+        movieTitle: widget.movieTitle,
+        seats: selectedSeats,
+        totalPrice: finalPrice,
       );
-      Navigator.pop(context);
+
+      if (context.mounted) {
+        // Show success message
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Booking berhasil! ID: $bookingId'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal membuat booking: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -235,6 +283,33 @@ class _SeatMatrixJabirState extends State<SeatMatrixJabir> {
               child: Text(
                 'Selected Seats: ${selectedSeats.isNotEmpty ? selectedSeats.join(', ') : 'None'}',
                 style: TextStyle(fontSize: 16),
+              ),
+            ),
+
+            SizedBox(height: 20),
+
+            // Price information
+            Container(
+              padding: EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    'Harga Tiket: Rp ${widget.basePrice.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{3})$|^(\d{3})(?=\d)', multiLine: true), (Match m) => '${m[0]},-')}',
+                    style: TextStyle(fontSize: 14),
+                  ),
+                  Text(
+                    'Jumlah Kursi: ${selectedSeats.length}',
+                    style: TextStyle(fontSize: 14),
+                  ),
+                  Text(
+                    'Total (setelah pajak/diskon): Rp ${_calculateFinalPrice().toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{3})$|^(\d{3})(?=\d)', multiLine: true), (Match m) => '${m[0]},-')}',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green),
+                  ),
+                ],
               ),
             ),
 
