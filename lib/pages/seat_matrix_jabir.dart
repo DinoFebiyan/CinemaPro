@@ -1,5 +1,6 @@
 import 'package:cinemapro/service/booking_service_isal.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 // SeatItem widget representing a single seat
 class SeatItemJabir extends StatelessWidget {
@@ -71,14 +72,12 @@ class SeatMatrixJabir extends StatefulWidget {
   final String movieTitle;
   final String userId;
   final int totalPrice;
-  final List<String> bookedSeats;
 
   const SeatMatrixJabir({
     Key? key,
     required this.movieTitle,
     required this.userId,
     required this.totalPrice,
-    this.bookedSeats = const [],
   }) : super(key: key);
 
   @override
@@ -88,20 +87,53 @@ class SeatMatrixJabir extends StatefulWidget {
 class _SeatMatrixJabirState extends State<SeatMatrixJabir> {
   Map<String, SeatStatus> seatStatuses = {};
   List<String> selectedSeats = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _initializeSeats();
+    _loadBookedSeats(); // Fetch booked seats from Firestore
   }
 
-  void _initializeSeats() {
-    // Initialize all seats as available
+  Future<void> _loadBookedSeats() async {
+    try {
+      // Fetch all bookings for this movie
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('bookings')
+          .where('movie_title', isEqualTo: widget.movieTitle)
+          .get();
+
+      // Extract all booked seats from the query result
+      Set<String> bookedSeatsSet = {};
+      for (var doc in querySnapshot.docs) {
+        final seats = doc.data()['seats'] as List;
+        for (var seat in seats) {
+          if (seat is String) {
+            bookedSeatsSet.add(seat);
+          }
+        }
+      }
+
+      // Initialize seats based on booked status
+      _initializeSeats(bookedSeatsSet.toList());
+    } catch (e) {
+      print('Error loading booked seats: $e');
+      // Initialize seats as available if there's an error
+      _initializeSeats([]);
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _initializeSeats(List<String> bookedSeats) {
+    // Initialize all seats as available or booked based on the fetched data
     for (int row = 0; row < 10; row++) {
       String rowLabel = String.fromCharCode(65 + row); // A, B, C, etc.
       for (int col = 1; col <= 5; col++) {
         String seatNumber = '${rowLabel}${col}';
-        seatStatuses[seatNumber] = widget.bookedSeats.contains(seatNumber)
+        seatStatuses[seatNumber] = bookedSeats.contains(seatNumber)
             ? SeatStatus.booked
             : SeatStatus.available;
       }
@@ -164,6 +196,26 @@ class _SeatMatrixJabirState extends State<SeatMatrixJabir> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Select Seats'),
+          backgroundColor: Colors.blue,
+          foregroundColor: Colors.white,
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text('Loading seat availability...'),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Select Seats'),

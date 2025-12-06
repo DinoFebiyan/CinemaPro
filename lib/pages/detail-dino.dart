@@ -201,9 +201,13 @@ class DetailPage extends StatelessWidget {
 
           try {
             Navigator.push(
-              context, 
+              context,
               MaterialPageRoute(
-                builder: (context) => SeatMatrixJabir(movieTitle: movie.title, userId: user.uid, totalPrice: movie.basePrice),
+                builder: (context) => SeatMatrixJabir(
+                  movieTitle: movie.title,
+                  userId: user.uid,
+                  totalPrice: movie.basePrice,
+                ),
               )
             );
           } catch (e) {
