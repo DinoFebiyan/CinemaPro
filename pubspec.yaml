@@ -69,7 +69,7 @@ flutter:
     - assets/icons/gambarRusak.png
     - assets/icons/star.png
     - assets/icons/timer.png
-    - assets/icons/chair.png
+    - assets/icons/ticket.png
 
   fonts:
     - family: Poppins

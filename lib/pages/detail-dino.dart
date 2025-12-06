@@ -255,8 +255,8 @@ child: ElevatedButton.icon(
             }
           }
         },
-        icon: Image.asset('assets/icons/chair.png', width: 24, height: 24, color: Colors.white),
-        label: const Text('Pilih Kursi', style: TextStyle(color: Colors.white),
+        icon: Image.asset('assets/icons/ticket.png', width: 24, height: 24, color: Colors.white),
+        label: const Text('Book Ticket', style: TextStyle(color: Colors.white),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.blue,
