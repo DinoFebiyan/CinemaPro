@@ -16,7 +16,7 @@ class HomePage extends StatelessWidget {
         title: const Text('CinemaPro'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.person_2_rounded),
+            icon: Image.asset('assets/icons/profile.png', width: 24, height: 24),
             onPressed: () {
               Navigator.push(
                 context, 
@@ -28,7 +28,7 @@ class HomePage extends StatelessWidget {
             ),
           
           IconButton(
-            icon: const Icon(Icons.logout_outlined),
+            icon: Image.asset('assets/icons/logout.png', width: 24, height: 24),
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
               if (context.mounted) {
@@ -104,10 +104,14 @@ class HomePage extends StatelessWidget {
                               errorBuilder: (context, error, stackTrace) {
                                 return Container(
                                   color: Colors.grey[300],
-                                  child: const Icon(
-                                    Icons.image_not_supported,
-                                    size: 50,
-                                    color: Colors.grey,
+                                  child: Center(
+                                    child: Image.asset(
+                                      'assets/icons/gambarRusak.png', 
+                                      width: 50,
+                                      height: 50,
+                                      fit: BoxFit.contain,
+                                      color: Colors.grey, 
+                                    ),
                                   ),
                                 );
                               },
@@ -139,10 +143,11 @@ class HomePage extends StatelessWidget {
                             const SizedBox(height: 4),
                             Row(
                               children: [
-                                const Icon(
-                                  Icons.star,
+                                Image.asset(
+                                  'assets/icons/star.png',
+                                  width: 20,
+                                  height: 20,
                                   color: Colors.amber,
-                                  size: 16,
                                 ),
                                 const SizedBox(width: 4),
                                 Text(

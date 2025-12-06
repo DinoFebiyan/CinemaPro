@@ -12,7 +12,7 @@ class ProfilePageCheryl extends StatelessWidget {
   Widget build(BuildContext context) {
     
     final String currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
-
+    final String passwordCurent = FirebaseAuth.instance.currentUser?.hashCode.toString() ?? '';
    
     if (currentUserId.isEmpty) {
       return const Scaffold(
@@ -57,10 +57,10 @@ class ProfilePageCheryl extends StatelessWidget {
                 child: Row(
                   children: [
                     // Avatar Icon
-                    const CircleAvatar(
+                    CircleAvatar(
                       radius: 30,
                       backgroundColor: Colors.white,
-                      child: Icon(Icons.person, size: 40, color: Colors.blue),
+                      child: Image.asset('assets/icons/profile.png', width: 40, height: 40),
                     ),
                     const SizedBox(width: 16),
                     // Info User

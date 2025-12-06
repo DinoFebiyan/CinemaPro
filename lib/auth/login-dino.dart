@@ -24,6 +24,7 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Login'),
+        centerTitle: true,
         backgroundColor: Colors.blue,
       ),
       body: Padding(
@@ -88,7 +89,7 @@ class _LoginPageState extends State<LoginPage> {
               _isLoading
                   ? const CircularProgressIndicator()
                   : ElevatedButton(
-                      onPressed: _login,
+                      onPressed: _login_dino,
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 32,
@@ -133,7 +134,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-Future<void> _login() async {
+Future<void> _login_dino() async {
   if (!_formKey.currentState!.validate()) {
     return;
   }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'firebase_options.dart';
 import 'pages/home-dino.dart';
 import 'auth/login-dino.dart';
@@ -22,7 +21,8 @@ class MyApp_dino extends StatelessWidget {
       title: 'CinemaPro',
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
+        fontFamily: 'Poppins',
+        textTheme: Theme.of(context).textTheme,
       ),
       debugShowCheckedModeBanner: false,
       home: const initialScreen_dino(),

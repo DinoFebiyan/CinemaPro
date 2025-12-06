@@ -1,7 +1,5 @@
 import 'package:cinemapro/pages/seat_matrix_jabir.dart';
-import 'package:cinemapro/service/booking_service_isal.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/movie_model_cheryl.dart';
 
@@ -10,7 +8,7 @@ class DetailPage extends StatelessWidget {
 
   const DetailPage({super.key, required this.movie});
 
-  String _formatPrice(int price) {
+  String _formatPrice_dino(int price) {
     final priceStr = price.toString();
     final buffer = StringBuffer('Rp ');
     for (int i = 0; i < priceStr.length; i++) {
@@ -48,10 +46,12 @@ class DetailPage extends StatelessWidget {
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
                       color: Colors.grey[300],
-                      child: const Center(
-                        child: Icon(
-                          Icons.image_not_supported,
-                          size: 100,
+                      child: Center(
+                        child: Image.asset(
+                          'assets/icons/gambarRusak.png',
+                          width: 100,
+                          height: 100,
+                          fit: BoxFit.contain,
                           color: Colors.grey,
                         ),
                       ),
@@ -101,10 +101,11 @@ class DetailPage extends StatelessWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(
-                              Icons.star,
+                            Image.asset(
+                              'assets/icons/star.png',
+                              width: 20,
+                              height: 20,
                               color: Colors.amber,
-                              size: 20,
                             ),
                             const SizedBox(width: 4),
                             Text(
@@ -130,10 +131,11 @@ class DetailPage extends StatelessWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(
-                              Icons.access_time,
+                            Image.asset(
+                              'assets/icons/timer.png',
+                              width: 20,
+                              height: 20,
                               color: Colors.blue,
-                              size: 20,
                             ),
                             const SizedBox(width: 4),
                             Text(
@@ -167,7 +169,7 @@ class DetailPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          _formatPrice(movie.basePrice),
+                          _formatPrice_dino(movie.basePrice),
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -216,8 +218,8 @@ class DetailPage extends StatelessWidget {
             }
           }
         },
-        icon: const Icon(Icons.chair),
-        label: const Text('Pilih Kursi'),
+        icon: Image.asset('assets/icons/chair.png', width: 24, height: 24, color: Colors.white),
+        label: const Text('Pilih Kursi', style: TextStyle(color: Colors.white),),
         backgroundColor: Colors.blue,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
