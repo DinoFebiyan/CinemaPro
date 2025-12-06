@@ -12,7 +12,6 @@ class ProfilePageCheryl extends StatelessWidget {
   Widget build(BuildContext context) {
     
     final String currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
-    final String passwordCurent = FirebaseAuth.instance.currentUser?.hashCode.toString() ?? '';
    
     if (currentUserId.isEmpty) {
       return const Scaffold(

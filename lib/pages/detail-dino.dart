@@ -3,10 +3,29 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/movie_model_cheryl.dart';
 
-class DetailPage extends StatelessWidget {
+class DetailPage extends StatefulWidget {
   final MovieModelCheryl movie;
 
   const DetailPage({super.key, required this.movie});
+
+  @override
+  State<DetailPage> createState() => _DetailPageState();
+}
+
+class _DetailPageState extends State<DetailPage> {
+  double posX = 20;
+  double posY = 0;
+
+
+void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final screenHeight = MediaQuery.of(context).size.height;
+      setState(() {
+        posY = screenHeight - 50;
+      });
+    });
+  }
 
   String _formatPrice_dino(int price) {
     final priceStr = price.toString();
@@ -22,6 +41,7 @@ class DetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final movie = widget.movie;
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
 
@@ -32,7 +52,9 @@ class DetailPage extends StatelessWidget {
         : '${durationMinutes}m';
 
     return Scaffold(
-      body: CustomScrollView(
+      body: Stack(
+      children: [ 
+        CustomScrollView(
         slivers: [
           SliverAppBar(
             expandedHeight: screenHeight * 0.5,
@@ -186,7 +208,18 @@ class DetailPage extends StatelessWidget {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
+
+      Positioned(
+        left: posX,
+        top: posY,
+        child: GestureDetector(
+          onPanUpdate: (details) { 
+            setState(() {
+            posX += details.delta.dx;
+            posY += details.delta.dy;
+          });
+  },
+child: ElevatedButton.icon(
         onPressed: () async {
           final user = FirebaseAuth.instance.currentUser;
           if (user == null) {
@@ -223,10 +256,16 @@ class DetailPage extends StatelessWidget {
           }
         },
         icon: Image.asset('assets/icons/chair.png', width: 24, height: 24, color: Colors.white),
-        label: const Text('Pilih Kursi', style: TextStyle(color: Colors.white),),
-        backgroundColor: Colors.blue,
+        label: const Text('Pilih Kursi', style: TextStyle(color: Colors.white),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.blue,
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        ),
+      ),
+    ),
+    ],
+    ),
     );
   }
 }
