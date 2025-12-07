@@ -1,19 +1,16 @@
-// TODO: Perlu ditambahkan field 'password' ke dalam model ini untuk sistem autentikasi baru
-// Petunjuk untuk developer:
-// 1. Tambahkan field: final String password;
-// 2. Tambahkan ke constructor: required this.password
-// 3. Sertakan dalam toMapCheryl(): 'password' : password
-// 4. Sertakan dalam fromMapCheryl(): password: map['password'] ?? ''
+
 class UserModelCheryl {
   final String uid;
   final String email;
   final String username;
+  final String password;
   final int balance;
 
   UserModelCheryl ({
     required this.uid,
     required this.email,
     required this.username,
+    required this.password,
     required this.balance
   });
 
@@ -22,6 +19,7 @@ class UserModelCheryl {
       'uid' : uid,
       'email' : email,
       'username' : username,
+      'password' : password,
       'balance' : balance
     };
   }
@@ -31,6 +29,7 @@ class UserModelCheryl {
       uid:map['uid'] ?? '',
       email: map['email'] ?? '',
       username: map['username'] ?? '',
+      password: map['password'] ?? '',
       balance: (map['balance'] ?? 0).toInt(),
       );
   }
