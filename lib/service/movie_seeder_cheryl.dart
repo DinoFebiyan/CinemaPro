@@ -4,7 +4,7 @@ import '../models/movie_model_cheryl.dart';
 class MovieSeederCheryl {
   final List<MovieModelCheryl> _moviesData = [
     MovieModelCheryl(
-      movieID: 'mv001', 
+      movieID: 'mv01', 
       title: 'Up', 
       posterUrl: 'https://upload.wikimedia.org/wikipedia/en/0/05/Up_%282009_film%29.jpg', 
       basePrice: 30000, 
@@ -12,7 +12,7 @@ class MovieSeederCheryl {
       duration: 96,
       ),
       MovieModelCheryl(
-        movieID: 'mv002', 
+        movieID: 'mv02', 
         title: 'Coco', 
         posterUrl: 'https://upload.wikimedia.org/wikipedia/en/9/98/Coco_%282017_film%29_poster.jpg', 
         basePrice: 35000, 
@@ -20,7 +20,7 @@ class MovieSeederCheryl {
         duration: 105,
         ),
       MovieModelCheryl(
-      movieID: 'mv003',
+      movieID: 'mv03',
       title: 'Frozen',
       posterUrl: 'https://m.media-amazon.com/images/M/MV5BMTQ1MjQwMTE5OF5BMl5BanBnXkFtZTgwNjk3MTcyMDE@._V1_.jpg',
       basePrice: 40000,

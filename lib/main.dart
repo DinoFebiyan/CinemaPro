@@ -24,7 +24,7 @@ class MyApp_dino extends StatelessWidget {
         textTheme: Theme.of(context).textTheme,
       ),
       debugShowCheckedModeBanner: false,
-      home: const initialScreen_dino(),
+       home: const initialScreen_dino(),
     );
   }
 }

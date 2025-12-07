@@ -1,21 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart'; 
 import 'package:qr_flutter/qr_flutter.dart';
 import '../models/booking_model_cheryl.dart';
-import '../models/user_model_cheryl.dart'; 
+import '../models/user_model_cheryl.dart';
 
-class ProfilePageCheryl extends StatelessWidget {
+class ProfilePageCheryl extends StatefulWidget {
   const ProfilePageCheryl({super.key});
 
   @override
+  State<ProfilePageCheryl> createState() => _ProfilePageCherylState();
+}
+
+class _ProfilePageCherylState extends State<ProfilePageCheryl> {
+  String? _currentUserId; 
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserId(); 
+  }
+
+  
+  Future<void> _loadUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _currentUserId = prefs.getString('user_uid'); 
+      _isLoading = false;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    
-    final String currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
-   
-    if (currentUserId.isEmpty) {
+    if (_isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    if (_currentUserId == null || _currentUserId!.isEmpty) {
       return const Scaffold(
-        body: Center(child: Text("Silakan Login terlebih dahulu")),
+        body: Center(child: Text("Silakan Login terlebih dahulu (No Session)")),
       );
     }
 
@@ -28,53 +52,50 @@ class ProfilePageCheryl extends StatelessWidget {
       body: Column(
         children: [
           
+          
           FutureBuilder<DocumentSnapshot>(
             future: FirebaseFirestore.instance
                 .collection('users')
-                .doc(currentUserId)
+                .doc(_currentUserId) 
                 .get(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const LinearProgressIndicator(); 
+                return const LinearProgressIndicator();
               }
 
               if (!snapshot.hasData || !snapshot.data!.exists) {
                 return const Padding(
                   padding: EdgeInsets.all(16.0),
-                  child: Text("Data user tidak ditemukan"),
+                  child: Text("Data user tidak ditemukan di database"),
                 );
               }
 
-              
               final userData = snapshot.data!.data() as Map<String, dynamic>;
-              
-              final user = UserModelCheryl.fromMapCheryl(userData); 
+              final user = UserModelCheryl.fromMapCheryl(userData);
 
               return Container(
                 color: Colors.blue,
                 padding: const EdgeInsets.only(bottom: 24, left: 16, right: 16),
                 child: Row(
                   children: [
-                    // Avatar Icon
-                    CircleAvatar(
+                    const CircleAvatar(
                       radius: 30,
                       backgroundColor: Colors.white,
-                      child: Image.asset('assets/icons/profile.png', width: 40, height: 40),
+                      child: Icon(Icons.person, size: 40, color: Colors.blue),
                     ),
                     const SizedBox(width: 16),
-                    // Info User
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          user.username, // Nama User
+                          user.username,
                           style: const TextStyle(
                               color: Colors.white,
                               fontSize: 20,
                               fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          user.email, // Email User
+                          user.email,
                           style: const TextStyle(color: Colors.white70),
                         ),
                         const SizedBox(height: 8),
@@ -85,7 +106,7 @@ class ProfilePageCheryl extends StatelessWidget {
                               color: Colors.white24,
                               borderRadius: BorderRadius.circular(8)),
                           child: Text(
-                            "Saldo: Rp ${user.balance}", // Saldo User
+                            "Saldo: Rp ${user.balance}",
                             style: const TextStyle(
                                 color: Colors.white, fontWeight: FontWeight.bold),
                           ),
@@ -98,7 +119,7 @@ class ProfilePageCheryl extends StatelessWidget {
             },
           ),
 
-          
+          // JUDUL
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16),
@@ -109,12 +130,12 @@ class ProfilePageCheryl extends StatelessWidget {
             ),
           ),
 
-          
+          // LIST BOOKING (Filter pakai UID manual)
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('bookings')
-                  .where('user_id', isEqualTo: currentUserId) 
+                  .where('user_id', isEqualTo: _currentUserId) 
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
