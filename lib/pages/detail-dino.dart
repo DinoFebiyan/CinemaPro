@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/movie_model_cheryl.dart';
 
-class DetailPage extends StatefulWidget {
+class DetailPage_dino extends StatefulWidget {
   final MovieModelCheryl movie;
 
-  const DetailPage({super.key, required this.movie});
+  const DetailPage_dino({super.key, required this.movie});
 
   @override
-  State<DetailPage> createState() => _DetailPageState();
+  State<DetailPage_dino> createState() => _DetailPageState_dino();
 }
 
-class _DetailPageState extends State<DetailPage> {
+class _DetailPageState_dino extends State<DetailPage_dino> {
   double posX = 20;
   double posY = 0;
 

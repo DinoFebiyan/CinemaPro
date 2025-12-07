@@ -4,14 +4,14 @@ import 'register-jabir.dart';
 import '../utility/email_validator.dart';
 import '../pages/home-dino.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class LoginPage_dino extends StatefulWidget {
+  const LoginPage_dino({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<LoginPage_dino> createState() => _LoginPageState_dino();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState_dino extends State<LoginPage_dino> {
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController emailController = TextEditingController();
@@ -159,7 +159,7 @@ Future<void> _login_dino() async {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomePage()),
+        MaterialPageRoute(builder: (context) => HomePage_dino()),
       );
     }
 
