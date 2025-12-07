@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user_model_cheryl.dart';
-import '../utils/passwordHash_jabir.dart';
+import '../utility/passwordHash_jabir.dart';
 
 class UserService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
