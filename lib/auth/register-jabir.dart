@@ -1,9 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../utility/emailValidator_jabir.dart'; // Import the email validator from utility folder
-import '../models/user_model_cheryl.dart'; // Import the existing user model
 import '../utility/userService_jabir.dart'; // Import the new user service
-import '../utility/passwordHash_jabir.dart'; // Import the password hashing utility
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -14,7 +11,6 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _firestore = FirebaseFirestore.instance;
   final UserService _userService = UserService(); // New user service instance
 
   final TextEditingController _emailController = TextEditingController();

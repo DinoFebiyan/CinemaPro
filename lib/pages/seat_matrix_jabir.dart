@@ -33,8 +33,6 @@ class SeatItemJabir extends StatelessWidget {
         seatColor = Colors.red;
         isInteractive = false;
         break;
-      default:
-        seatColor = Colors.grey[300]!;
     }
 
     return GestureDetector(

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/movie_model_cheryl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'detail-dino.dart';
 import 'profile_cheryl.dart';
 
@@ -31,6 +32,9 @@ class HomePage_dino extends StatelessWidget {
             icon: Image.asset('assets/icons/logout.png', width: 24, height: 24),
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.remove('user_uid');
+
               if (context.mounted) {
                 Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=> const initialScreen_dino()), (route) => false);
               }

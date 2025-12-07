@@ -1,10 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'register-jabir.dart';
 import '../utility/emailValidator_jabir.dart';
 import '../pages/home-dino.dart';
 import '../utility/userService_jabir.dart';
 import '../models/user_model_cheryl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage_dino extends StatefulWidget {
   const LoginPage_dino({super.key});
@@ -36,7 +36,6 @@ class _LoginPageState_dino extends State<LoginPage_dino> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-
               TextFormField(
                 controller: emailController,
                 decoration: const InputDecoration(
@@ -154,8 +153,10 @@ Future<void> _login_dino() async {
     );
 
     if (user != null) {
-      // Login successful
-      if (mounted) {
+      final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('user_uid', user.uid);
+
+        if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Login berhasil'),
