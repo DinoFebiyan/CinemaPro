@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import '../utility/email_validator.dart'; // Import the email validator from utility folder
+import '../utility/emailValidator_jabir.dart'; // Import the email validator from utility folder
 import '../models/user_model_cheryl.dart'; // Import the existing user model
-import '../services/userService_jabir.dart'; // Import the new user service
-import '../utils/passwordHash_jabir.dart'; // Import the password hashing utility
+import '../utility/userService_jabir.dart'; // Import the new user service
+import '../utility/passwordHash_jabir.dart'; // Import the password hashing utility
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
