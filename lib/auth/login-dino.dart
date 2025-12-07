@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'register-jabir.dart';
 import '../utility/emailValidator_jabir.dart';
 import '../pages/home-dino.dart';
+import '../utility/userService_jabir.dart';
+import '../models/user_model_cheryl.dart';
 
 class LoginPage_dino extends StatefulWidget {
   const LoginPage_dino({super.key});
@@ -144,30 +146,45 @@ Future<void> _login_dino() async {
   });
 
   try {
-    await FirebaseAuth.instance.signInWithEmailAndPassword(
-      email: emailController.text.trim(),
-      password: passwordController.text,
+    // Use your custom service to find and verify user
+    UserService userService = UserService();
+    UserModelCheryl? user = await userService.findUserByEmailAndPassword(
+      emailController.text.trim(),
+      passwordController.text,
     );
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Login berhasil'),
-          backgroundColor: Colors.green,
-        ),
-      );
+    if (user != null) {
+      // Login successful
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Login berhasil'),
+            backgroundColor: Colors.green,
+          ),
+        );
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => HomePage_dino()),
-      );
+        // Navigate to home page
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage_dino()),
+        );
+      }
+    } else {
+      // Login failed
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Email atau password salah'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
-
-  } on FirebaseAuthException catch (e) {
+  } catch (e) {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Login gagal: ${e.message}'),
+          content: Text('Login gagal: ${e.toString()}'),
           backgroundColor: Colors.red,
         ),
       );

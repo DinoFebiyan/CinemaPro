@@ -58,9 +58,11 @@ class UserService {
       DocumentSnapshot userDoc = querySnapshot.docs.first;
       UserModelCheryl user = UserModelCheryl.fromMapCheryl(userDoc.data() as Map<String, dynamic>);
       
+      print('Retrieved user from DB: ${user.email}, stored hash: ${user.password}'); // Debug log
       // Verify the password
       bool isPasswordValid = await PasswordHashUtil.verifyPassword(password, user.password);
-      
+
+      print('Password verification result: $isPasswordValid'); // Debug log
       if (isPasswordValid) {
         return user; // Return user if password is correct
       } else {
