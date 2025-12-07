@@ -61,7 +61,7 @@ class initialScreen_dino extends StatelessWidget {
               }
 
               if (userSnapshot.hasData && userSnapshot.data!.exists) {
-                return HomePage();
+                return HomePage_dino();
               } else {
                 return const Scaffold(
                   body: Center(child: Text('Gagal memuat data user')),
@@ -70,7 +70,7 @@ class initialScreen_dino extends StatelessWidget {
             },
           );
         }
-        return const LoginPage();
+        return const LoginPage_dino();
       },
     );
   }

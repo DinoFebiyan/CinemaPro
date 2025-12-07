@@ -6,8 +6,8 @@ import '../models/movie_model_cheryl.dart';
 import 'detail-dino.dart';
 import 'profile_cheryl.dart';
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+class HomePage_dino extends StatelessWidget {
+  const HomePage_dino({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +79,7 @@ class HomePage extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => DetailPage(movie: movie),
+                      builder: (context) => DetailPage_dino(movie: movie),
                     ),
                   );
                 },
