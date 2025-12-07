@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import '../../lib/utility/email_validator.dart'; // Use relative import from test/auth/ to lib/utility/
+import '../../lib/utility/emailValidator_jabir.dart'; // Use relative import from test/auth/ to lib/utility/
 
 void main() {
   group('EmailValidator Tests', () {

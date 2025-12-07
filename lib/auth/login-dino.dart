@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'register-jabir.dart';
-import '../utility/email_validator.dart';
+import '../utility/emailValidator_jabir.dart';
 import '../pages/home-dino.dart';
 
 class LoginPage_dino extends StatefulWidget {
